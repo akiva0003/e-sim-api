@@ -471,9 +471,9 @@ def citizenStatistics(https, server):
             values[Index] = int(float(value)) if int(float(value)) == float(value) else float(value)
 
     row = {"country": country, "country id": countryId, "statistic type": statistic_type,
-           "citizens" if "citizenStatistics" in request.full_path else "stock companies": {
-               Index+1: {"id": int(link.split("id=")[1]), "nick" if "citizenStatistics" in request.full_path else "stock company": nick.strip(),
-                         "country": country, "value": value} for Index, (link, nick, country, value) in enumerate(zip(links, nicks, countries, values))}}
+           "citizens" if "citizenStatistics" in request.full_path else "stock companies": [
+               {"id": int(link.split("id=")[1]), "nick" if "citizenStatistics" in request.full_path else "stock company": nick.strip(),
+                         "country": country, "value": value} for link, nick, country, value in zip(links, nicks, countries, values)]}
     return jsonify(row)
 
 
@@ -484,7 +484,7 @@ def countryStatistics(https, server):
     countries = tree.xpath("//td/b/text()")[1:]
     values = tree.xpath("//td[3]/text()")[1:]
     row = {"statistic type": statistic_type,
-           "countries": {Index+1: {"country": k, "value": int(v.strip())} for Index, (k, v) in enumerate(zip(countries, values))}}
+           "countries": [{"country": k, "value": int(v.strip())} for k, v in zip(countries, values)]}
     return jsonify(row)
 
 
@@ -506,6 +506,7 @@ def coalitionStatistics(https, server):
                         "members": members, "regions": regions, "citizens": citizens, "dmg": dmg})
         except:
             break
+    row = sorted(row, key=lambda k: k['dmg'])
     return jsonify(row)
 
 
