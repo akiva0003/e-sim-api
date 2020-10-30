@@ -1,0 +1,5 @@
+flask
+gunicorn
+lxml
+requests
+pymongo[srv]
