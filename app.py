@@ -759,7 +759,7 @@ def battlesByWar(https, server):
             defender, attacker, battles_id, battles_region, score, dmg, battle_start):
         row["battles"].append({"defender": {"name": defender, "score": int(score.strip().split(":")[0])},
                                "attacker": {"name": attacker, "score": int(score.strip().split(":")[1])},
-                               "id": battle_id, "dmg": dmg, "region": battle_region, "score": score, "battle start": battle_start})
+                               "id": battle_id, "dmg": dmg, "region": battle_region, "battle start": battle_start})
     return jsonify(row)
 
 
