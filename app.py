@@ -751,15 +751,15 @@ def battlesByWar(https, server):
     battles_id = [int(x.split("?id=")[1]) for x in tree.xpath('//tr//td[1]//div//div[2]//div[2]/a/@href')]
     battles_region = tree.xpath('//tr//td[1]//div//div[2]//div[2]/a/text()')
 
-    score = [{"defender": int(x.strip().split(":")[0]), "attacker": int(x.strip().split(":")[1])} for x in
-             tree.xpath('//tr[position()>1]//td[2]/text()')]
+    score = tree.xpath('//tr[position()>1]//td[2]/text()')
     dmg = [int(x.replace(",", "").strip()) for x in tree.xpath('//tr[position()>1]//td[3]/text()')]
     battle_start = [x.strip() for x in tree.xpath('//tr[position()>1]//td[4]/text()')]
     row = {"pages": last_page, "war": war, "battles": []}
-    for defender, attacker, battles_id, battles_region, score, dmg, battle_start in zip(
+    for defender, attacker, battle_id, battle_region, score, dmg, battle_start in zip(
             defender, attacker, battles_id, battles_region, score, dmg, battle_start):
-        row["battles"].append({"defender": defender, "attacker": attacker, "battles id": battles_id, "dmg": dmg,
-                               "region": battles_region, "score": score, "battle start": battle_start})
+        row["battles"].append({"defender": {"name": defender, "score": int(score.strip().split(":")[0])},
+                               "attacker": {"name": attacker, "score": int(score.strip().split(":")[1])},
+                               "id": battle_id, "dmg": dmg, "region": battle_region, "score": score, "battle start": battle_start})
     return jsonify(row)
 
 
@@ -790,7 +790,7 @@ def battles(https, server):
     for progress_attacker, progress_defender, counter, defender, attacker, battles_id, battles_region, score, dmg, battle_start in zip(
             progress_attacker, progress_defender, counter, defender, attacker, battles_id, battles_region, score, dmg, battle_start):
         row["battles"].append(
-            {"counter": counter, "id": battles_id, "dmg": dmg, "region": battles_region, "started": battle_start,
+            {"time reminding": counter, "id": battles_id, "dmg": dmg, "region": battles_region, "started": battle_start,
              "defender": {"name": defender, "score": int(score.strip().split(":")[0]), "bar": progress_defender},
              "attacker": {"name": attacker, "score": int(score.strip().split(":")[1]), "bar": progress_attacker}})
     return jsonify(row)
