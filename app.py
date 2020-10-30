@@ -506,7 +506,7 @@ def coalitionStatistics(https, server):
                         "members": members, "regions": regions, "citizens": citizens, "dmg": dmg})
         except:
             break
-    row = sorted(row, key=lambda k: k['dmg'])
+    row = sorted(row, key=lambda k: k['dmg'], reverse=True)
     return jsonify(row)
 
 
