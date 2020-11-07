@@ -595,15 +595,19 @@ def news(https, server):
 @app.route('/<https>://<server>.e-sim.org/events.html', methods=['GET'])
 def events(https, server):
     tree = get_tree(f"{request.full_path[1:].replace(f'{https}:/', 'https://')}")
+    last_page = tree.xpath("//ul[@id='pagination-digg']//li[last()-1]//@href") or ['page=1']
+    last_page = int(last_page[0].split('page=')[1])
     country = tree.xpath('//*[@id="country"]//option[@selected="selected"]')[0].text
     countryId = int(tree.xpath('//*[@id="country"]//option[@selected="selected"]/@value')[0])
     events_type = tree.xpath('//*[@id="eventsType"]//option[@selected="selected"]')[0].text
     titles = [x.text_content().replace("\n\xa0 \xa0 \xa0 \xa0", "").replace("  ", " ").strip() for x in tree.xpath('//tr//td//div[2]')]
     titles = [x for x in titles if x]
+    icons = [x.split("/")[-1].replace("Icon.png", "") for x in tree.xpath('//tr//td//div[1]//img//@src')]
+    icons = [x if ".png" not in x else "" for x in icons]
     links = tree.xpath('//tr//td//div[2]/a/@href')
-    row = {"country": country, "country id": countryId, "events type": events_type, "events": []}
-    for title, link in zip(titles, links):
-        row["events"].append({"event": " ".join(title.split("  ")[:-1]).strip(), "time": title.split("  ")[-1].strip(), "link": link})
+    row = {"country": country, "country id": countryId, "pages": last_page, "events type": events_type, "events": []}
+    for title, link, icon in zip(titles, links, icons):
+        row["events"].append({"event": " ".join(title.split("  ")[:-1]).strip(), "time": title.split("  ")[-1].strip(), "link": link, "icon": icon})
     return jsonify(row)
 
 
