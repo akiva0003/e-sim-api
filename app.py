@@ -14,6 +14,7 @@ from pymongo import MongoClient
 client = MongoClient(os.environ['db'])
 
 mycol = client["database"]["collection"]
+priceDB = client["database"]["price"]
 
 app = Flask(__name__)
 log = logging.getLogger('werkzeug')
@@ -97,6 +98,28 @@ def home():
 </html>
 '''
     return page
+
+
+@app.route('/<https>://<server>.e-sim.org/prices.html', methods=['GET'])
+def prices(https, server):
+    row = priceDB.find_one({"_id": server}, {"_id": 0})
+    row["Headers"] = row["Product"][0]
+    del row["Product"]
+    for product in row:
+        if product == "Headers":
+            continue
+        for num, first_5 in enumerate(row[product]):
+            DICT = {}
+            for Index, column in enumerate(first_5):
+                DICT[row["Headers"][Index].lower()] = column
+            try:
+                row[product][num] = DICT
+            except:
+                print(product, num)
+                        
+    row["last update"] = " ".join(row["Headers"][-1].split()[2:4])
+    del row["Headers"]
+    return jsonify(row)
 
 
 @app.route('/<https>://<server>.e-sim.org/statistics.html', methods=['GET'])
