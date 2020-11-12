@@ -269,9 +269,10 @@ def jobMarket(https, server):
     row = {"country": country, "country id": countryId, "offers": []}
     for employer, company, company_link, company_type, quality, skill, salary in zip(
             employers, companies, companies_link, company_types, qualities, skills, salaries):
-        row["offers"].append({"employer": employer, "company": company, "company id": int(company_link.split("?id=")[1]),
+        row["offers"].append({"employer": employer.strip(), "company": company, "company id": int(company_link.split("?id=")[1]),
                               "company type": company_type, "company quality": int(quality),
                               "minimal skill": int(skill), "salary": salary if salary != int(salary) else int(salary)})
+    row["cc"] = tree.xpath('//*[@id="esim-layout"]//tr[2]//td[5]/text()')[-1].strip() if row["offers"] else ""
     return jsonify(row)
 
 
