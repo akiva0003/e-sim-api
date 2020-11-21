@@ -155,7 +155,8 @@ def auction(https, server):
     if not time1:
         time1 = [x.strip() for x in tree.xpath('//*[@id="esim-layout"]//div[1]//table//tr[2]//td[6]/text()') if x.strip()]
     else:
-        time1 = [f'{int(x[0]):02d}:{int(x[1]):02d}:{int(x[2]):02d}' for x in time1[0].split(":")]
+        time1 = time1[0].split(":")
+        time1 = [f'{int(time1[0]):02d}:{int(time1[1]):02d}:{int(time1[2]):02d}']
     row = {"seller": seller.strip(), "buyer": buyer[0].strip(), "item": item[0],
            "price": float(price) if float(price) != int(float(price)) else int(float(price)), "time": time1[0], "bidders": bidders}
     return jsonify(row)
