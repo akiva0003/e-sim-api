@@ -202,7 +202,7 @@ def congressElections(https, server):
     candidates_links = [int(x.split("id=")[1]) for x in tree.xpath("//tr//td[2]//a/@href")]
     parties = tree.xpath("//tr//td[4]//div/a/text()")
     parties_links = [int(x.split("id=")[1]) for x in tree.xpath("//tr//td[4]//div/a/@href")]
-    votes = [x.strip() for x in tree.xpath("//tr[position()>1]//td[5]//text()") if x.strip()]
+    votes = [x.strip() for x in tree.xpath("//tr[position()>1]//td[5]//text()") if x.strip()] or ["0"] * len(candidates)
 
     row = {"country": country, "country id": countryId, "date": date, "candidates": []}
     for candidate, candidate_id, vote, party_name, party_id in zip(candidates, candidates_links, votes, parties, parties_links):
@@ -219,7 +219,7 @@ def presidentalElections(https, server):
     date = tree.xpath('//*[@id="date"]//option[@selected="selected"]')[0].text
     candidates = tree.xpath("//tr//td[2]//a/text()")
     IDs = [int(x.split("?id=")[1]) for x in tree.xpath("//tr//td[2]//a/@href")]
-    votes = [x.strip() for x in tree.xpath("//tr[position()>1]//td[4]//text()") if x.strip()]
+    votes = [x.strip() for x in tree.xpath("//tr[position()>1]//td[4]//text()") if x.strip()] or ["0"] * len(candidates)
     row = {"country": country, "country id": countryId, "date": date, "candidates": []}
     for candidate, vote, id in zip(candidates, votes, IDs):
         row["candidates"].append({"candidate": candidate.strip(), "votes": int(vote.strip()), "candidate id": id})
