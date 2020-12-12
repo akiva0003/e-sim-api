@@ -167,8 +167,8 @@ def showShout(https, server):
     tree = get_tree(f"{request.full_path[1:].replace(f'{https}:/', 'https://')}")
     shout = [x.strip() for x in tree.xpath(f'//*[@class="shoutContainer"]//div//div[1]//text()') if x.strip()]
     shout = "\n".join([x.replace("★", "") for x in shout]).strip()
-    author = tree.xpath(f'//*[@class="shoutContainer"]//div//a/text()')[0].strip()
-    posted = tree.xpath(f'//*[@class="shoutContainer"]//div//b')[0].text
+    author = tree.xpath(f'//*[@class="shoutAuthor"]//a/text()')[0].strip()
+    posted = tree.xpath(f'//*[@class="shoutAuthor"]//b')[0].text
     row = {"body": shout, "author": author, "posted": posted.replace("posted ", "")}
     return jsonify(row)
 
