@@ -832,71 +832,19 @@ def battles(https, server):
 
 @app.route('/<https>://<server>.e-sim.org/profile.html', methods=['GET'])
 def profile(https, server):
-    # TODO: rewrite
     tree = get_tree(f"{request.full_path[1:].replace(f'{https}:/', 'https://')}")
     all_parameters = ["avoid", "max", "crit", "damage", "miss", "flight", "eco", "str", "hit", "less", "find"]
     slots = ['helmet', 'vision', 'personal armor', 'pants', 'shoes', 'lucky charm', 'weapon upgrade', 'offhand']
     medals = ["Congress medals", "CP", "Train", "Inviter", "Subs", "Work", "BHs", "RW", "Tester", "Tournament"]
     Friends = [x.replace("Friends", "").replace("(", "").replace(")", "") for x in
                tree.xpath("//div[@class='rank']/text()") if "Friends" in x] or [0] 
-    inactive = True if 'This citizen has been inactive for ' in str(tree.xpath("//tr//td[2]//div[1]/text()")) else False
-    if inactive:
-        try:
-            days_number = int(
-                str(tree.xpath("//tr//td[2]//div[1]/text()")[0]).replace('This citizen has been inactive for ',
-                                                                         '').replace(' days', ''))
-            status = date.today() - timedelta(days=days_number)
-        except:
-            status = "error"
-    else:
-        status = ""
-
-    try:
-        try:
-            by = tree.xpath("//tr//td[1]//div[1]//div[3]/a/text()")[0].strip()
-        except:
-            by = ""
-    except:
-        by = "Error"
-    try:
-        premium = tree.xpath('//*[@id="profileTable"]//tr//td[1]//div//div/text()')
-    except:
-        premium = ""
-    premium = True if "Premium account" in premium else False
-    try:
-        try:
-            birthday = tree.xpath("//*[@id='profileTable']//tr//td[1]//div[2]//div[9]//span[1]")[0].text
-        except:  # for banned players
-            birthday = tree.xpath("//*[@id='profileTable']//tr//td[1]//div[3]//div[9]//span[1]")[0].text
-        birthday = int(birthday.replace("Day ", ""))
-    except:
-        birthday = 0
-    assets, debts = 0, 0
-    count = 0
-    div = 2 if inactive else 1
-    while 1:
-        count += 1
-        try:
-            debt = tree.xpath(f"//*[@id='profileTable']//tr/td[2]//div[{div}]//ul//li[{count}]//text()[1]")[0].strip()
-            if "." in debt:
-                debts += float(debt)
-        except:
-            break
-    count = 0
-    if debts and inactive:
-        div = 4
-    elif not debts and inactive or debts and not inactive:
-        div = 3
-    else:
-        div = 2
-    while 1:
-        count += 1
-        try:
-            asset = tree.xpath(f"//*[@id='profileTable']//tr/td[2]//div[{div}]//ul//li[{count}]//text()[1]")[0].strip()
-            if "." in asset:
-                assets += float(asset)
-        except:
-            break
+    inactive = [int(x.split()[-2]) for x in tree.xpath(f'//*[@class="profile-data red"]/text()') if "This citizen has been inactive for" in x]
+    status = "0" if not inactive else str(date.today() - timedelta(days=inactive[0]))
+    banned_by = [x.strip() for x in tree.xpath(f'//*[@class="profile-data red"]//div/a/text()')] or [""]
+    premium = tree.xpath(f'//*[@class="premium-account"]') is True
+    birthday = tree.xpath(f'//*[@class="profile-row" and span = "Birthday"]/span/text()')[0]
+    debts = sum([float(x) for x in tree.xpath(f'//*[@class="profile-data red"]//li/text()')[::6]])
+    assets = sum([float(x.strip()) for x in tree.xpath(f'//*[@class="profile-data" and (strong = "Assets")]//ul//li/text()') if "\n" in x])
     equipments = {}
     Index = 0
     for Q in tree.xpath('//*[@id="profileEquipmentNew"]//div/@class'):
@@ -914,52 +862,38 @@ def profile(https, server):
             medals1[medal.lower()] = 1
         else:
             medals1[medal.lower()] = 0
-    buffs = []
-    debuffs = []
-    try:
-        profile_path = tree.xpath("//*[@id='profileTable']//tr//td[1]//div[1]//img/@src")
-        for i in profile_path:
-            b = i.split("/specialItems/")
-            try:
-                b = b[1].split("_")
-                if "negative" in b[1]:
-                    debuffs.append(b[0])
-                else:
-                    buffs.append(b[0])
-            except:
-                pass
-    except:
-        pass
+    buffs_debuffs = [x.split("/specialItems/")[-1].split(".png")[0] for x in tree.xpath(f'//*[@class="profile-row" and (strong="Debuffs" or strong="Buffs")]//img/@src') if "//cdn.e-sim.org//img/specialItems/" in x]
+    buffs = [x.split("_")[0] for x in buffs_debuffs if "positive" in x.split("_")[1:]]
+    debuffs = [x.split("_")[0] for x in buffs_debuffs if "negative" in x.split("_")[1:]]
     buffs = [a.replace("vacations", "vac").replace("resistance", "sewer") for a in buffs]
     debuffs = [a.replace("vacations", "vac").replace("resistance", "sewer") for a in debuffs]
-    Q = tree.xpath('//div[1]//div[2]//div[5]//tr//td[2]//div[1]//div[1]//@title')[:8]
-    for smth in Q:
-        tree = fromstring(smth)
+    for slot_path in tree.xpath('//*[@id="profileEquipmentNew"]//div//div//div//@title'):
+        tree = fromstring(slot_path)
         try:
-            Type = tree.xpath('//b/text()')[0]
-        except:
+            Type = tree.xpath('//b/text()')[0].strip()
+        except IndexError:
             continue
-        eq = tree.xpath('//p/text()')
-        full_name = []
+        parameters_string = tree.xpath('//p/text()')
         parameters = []
-        for i in eq:
+        full_name = []
+        for parameter_string in parameters_string:
             for x in all_parameters:
-                if x in i:
+                if x in parameter_string:
                     parameters.append(x)
-                    full_name.append(i)
+                    full_name.append(parameter_string)
                     break
         if len(parameters) == 2:
             parameter1, parameter2 = parameters
-            value1 = full_name[0].split("by ")[1].replace("%", "")
-            value2 = full_name[1].split("by ")[1].replace("%", "")
+            value1 = full_name[0].split("by ")[1].replace("%", "").strip()
+            value2 = full_name[1].split("by ")[1].replace("%", "").strip()
             equipments[" ".join(Type.split()[1:]).lower()].update(
                 {"first parameter": parameter1, "second parameter": parameter2,
-                 "first value": float(value1.strip()), "second value": float(value2.strip())})
-    row = {"medals": medals1, "friends": int(Friends[0]), "equipments": equipments, "inactive": inactive,
+                 "first value": float(value1), "second value": float(value2)})
+    row = {"medals": medals1, "friends": int(Friends[0]), "equipments": equipments, "inactive days": inactive[0] if inactive else 0,
            "premium": premium, "birthday": birthday,
            "assets": assets, "debts": debts, "buffs": buffs, "debuffs": debuffs}
-    if by:
-        row.update({"banned by": by})
+    if banned_by:
+        row.update({"banned by": banned_by[0]})
     if status:
         row.update({"last login": status})
     return jsonify(row)
