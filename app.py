@@ -710,7 +710,10 @@ def newspaper(https, server):
     last_page = tree.xpath("//ul[@id='pagination-digg']//li[last()-1]//@href") or ['page=1']
     last_page = int(last_page[0].split('page=')[1])
     subs = int(tree.xpath('//*[@id="mobileNewspaperStatusContainer"]//div[3]//div/text()')[0].strip())
-    row = {"subs": subs, "pages": last_page, "articles": [{"title": title, "id": id, "posted": posted, "votes": votes} for title, id, posted, votes in zip(titles, links, posted, votes)]}
+    redactor = tree.xpath('//*[@id="mobileNewspaperStatusContainer"]/div[1]/a/text()')[0].strip()
+    redactor_id = int(tree.xpath('//*[@id="mobileNewspaperStatusContainer"]/div[1]//a/@href')[0].split("profile.html?id=")[-1])
+    row = {"subs": subs, "pages": last_page, "redactor": redactor, "redactor id": redactor_id,
+           "articles": [{"title": title, "id": id, "posted": posted, "votes": votes} for title, id, posted, votes in zip(titles, links, posted, votes)]}
     return jsonify(row)
 
 
