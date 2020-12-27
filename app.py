@@ -132,12 +132,13 @@ def statistics(https, server):
 @app.route(f'/<https>://<server>.e-sim.org/article.html', methods=['GET'])
 def article(https, server):
     tree = get_tree(f"{request.full_path[1:].replace(f'{https}:/', 'https://')}")
-    author = tree.xpath('//*[@id="articleContainer"]/a[2]/text()')[0]
-    newspaper_name = tree.xpath('//*[@id="mobileNewspaperStatusContainer"]/div[2]/div/a[1]//text()')[0]
-    subs = tree.xpath('//*[@id="mobileNewspaperStatusContainer"]//div[3]//div//text()')[0].strip()
-    votes = tree.xpath('//*[@id="voteDiv"]//div//text()')[0]
-    title = tree.xpath('//*[@id="articleContainer"]//a[1]//text()')[0]
-    row = {"title": title, "author": author.strip(), "votes": int(votes), "newspaper": newspaper_name, "subs": int(subs)}
+    posted = " ".join(tree.xpath('//*[@class="mobile_article_preview_width_fix"]/text()')[0].split()[1:-1])
+    title = tree.xpath('//*[@class="articleTitle"]/text()')[0]
+    subs, votes = [int(x.strip()) for x in tree.xpath('//*[@class="bigArticleTab"]/text()')]
+    author_name, newspaper_name = tree.xpath('//*[@class="mobileNewspaperStatus"]/a/text()')
+    author_id, newspaper_id = [int(x.split("=")[1]) for x in tree.xpath('//*[@class="mobileNewspaperStatus"]/a/@href')[:2]]
+    row = {"posted": posted, "title": title, "author": author_name.strip(), "author id": author_id, "votes": votes,
+           "newspaper": newspaper_name, "newspaper id": newspaper_id, "subs": subs}
     return jsonify(row)
 
 
