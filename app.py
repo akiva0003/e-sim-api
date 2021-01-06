@@ -89,9 +89,6 @@ def home():
 <h1>Source Code:</h1>
 <p><a href=https://github.com/akiva0003/e-sim-api/blob/main/app.py>GitHub</a>
 <hr>
-<h1>Python Example:</h1>
-<p><a href=https://github.com/akiva0003/RipEsim/blob/main/exts/events.py#L172>Example (from RipEsim bot)</a>
-<hr>
 <p><b>Keep in mind that each request takes twice as much as if you would scrape the html by yourself.</b></p>
 <hr>
 </body>
