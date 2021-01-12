@@ -444,10 +444,11 @@ def achievement(https, server):
     tree = get_tree(f"{request.full_path[1:].replace(f'{https}:/', 'https://')}")
     last_page = tree.xpath("//ul[@id='pagination-digg']//li[last()-1]//@href") or ['page=1']
     last_page = int(last_page[0].split('page=')[1])
-    links = [x.split("?id=")[1] for x in tree.xpath(f'//*[@id="esim-layout"]//div[3]//div/a/@href')]
+    links = [int(x.split("?id=")[1]) for x in tree.xpath(f'//*[@id="esim-layout"]//div[3]//div/a/@href')]
     nicks = [x.strip() for x in tree.xpath(f'//*[@id="esim-layout"]//div[3]//div/a/text()')]
     category, achieved_by = [x.split(":")[1].strip() for x in tree.xpath(f'//*[@id="esim-layout"]//div[1]//div[2]/text()') if x.strip()]
-    row = {"category": category, "achieved by": achieved_by, "links": links, "nicks": nicks, "pages": last_page}
+    description = tree.xpath(f'//*[@class="foundation-style columns column-margin-vertical help"]/i/text()')[0].strip()
+    row = {"description": description, "category": category, "achieved by": achieved_by, "ids": links, "nicks": nicks, "pages": last_page}
     return jsonify(row)
 
 
