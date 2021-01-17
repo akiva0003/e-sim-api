@@ -87,7 +87,8 @@ def home():
 <p><a href={request.base_url}https://alpha.e-sim.org/law.html?id=1>{request.base_url}https://secura.e-sim.org/law.html?id=1</a>
 <hr>
 <h1>Source Code:</h1>
-<p><a href=https://github.com/akiva0003/e-sim-api/blob/main/app.py>GitHub</a>
+<p><a href=https://github.com/akiva0003/e-sim-api/blob/main/app.py>GitHub</a></p>
+Powered by <a href=https://www.patreon.com/ripEsim>34444</a>
 <hr>
 <p><b>Keep in mind that each request takes twice as much as if you would scrape the html by yourself.</b></p>
 <hr>
