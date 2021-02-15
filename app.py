@@ -90,7 +90,8 @@ def home():
 <p><a href=https://github.com/akiva0003/e-sim-api/blob/main/app.py>GitHub</a></p>
 Powered by <a href=https://www.patreon.com/ripEsim>34444</a>
 <hr>
-<p><b>Keep in mind that each request takes twice as much as if you would scrape the html by yourself.</b></p>
+<b><p>Keep in mind that each request takes twice as much as if you would scrape the html by yourself.
+<p>Also note that first request may take a while and may even throw an error, because it takes the server a few seconds to "warm up"</b>
 <hr>
 </body>
 </html>
