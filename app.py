@@ -22,7 +22,7 @@ log.setLevel(logging.ERROR)
 
 
 def get_tree(url):
-    return fromstring(requests.get(url, timeout=30).text)
+    return fromstring(requests.get(url, timeout=50, ssl="exura" not in url).text)
 
 
 def chunker(seq, size):
